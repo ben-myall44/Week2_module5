@@ -2,8 +2,9 @@
 title: "PA1_template.rmd"
 author: "Ben Myall"
 date: "24/04/2020"
-output: html_document
-keep_md: true 
+output: 
+  html_document: 
+    keep_md: yes
 ---
 
 
@@ -31,35 +32,43 @@ The first bit of analysis I will perform it to look at the relationship between 
 
 ```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(ggplot2)
 library(timeDate)
 
 
 data1<-read.csv(file="activity.csv",head=TRUE,sep=",")
-```
-
-```
-## Warning in file(file, "rt"): cannot open file 'activity.csv': No such file or directory
-```
-
-```
-## Error in file(file, "rt"): cannot open the connection
-```
-
-```r
 data1$date<-as.Date(data1$date,format="%Y-%m-%d")
-```
-
-```
-## Error in as.Date(data1$date, format = "%Y-%m-%d"): object 'data1' not found
-```
-
-```r
 head(data1)
 ```
 
 ```
-## Error in head(data1): object 'data1' not found
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
 ```
 
 1. Calculate the total number of steps taken per day
@@ -67,18 +76,24 @@ head(data1)
 
 ```r
 DailyStep<-data1 %>% group_by(date) %>%summarise(total=sum(steps,na.rm=TRUE))
-```
-
-```
-## Error in eval(lhs, parent, parent): object 'data1' not found
-```
-
-```r
 DailyStep
 ```
 
 ```
-## Error in eval(expr, envir, enclos): object 'DailyStep' not found
+## # A tibble: 61 x 2
+##    date       total
+##    <date>     <int>
+##  1 2012-10-01     0
+##  2 2012-10-02   126
+##  3 2012-10-03 11352
+##  4 2012-10-04 12116
+##  5 2012-10-05 13294
+##  6 2012-10-06 15420
+##  7 2012-10-07 11015
+##  8 2012-10-08     0
+##  9 2012-10-09 12811
+## 10 2012-10-10  9900
+## # ... with 51 more rows
 ```
 
 2. Make a histogram of the total number of steps taken each day
@@ -87,9 +102,7 @@ DailyStep
 hist(DailyStep$total,col="blue",main = "Total steps taken each day",xlab="Steps")
 ```
 
-```
-## Error in hist(DailyStep$total, col = "blue", main = "Total steps taken each day", : object 'DailyStep' not found
-```
+![](PA1_template_files/figure-html/hist total steps-1.png)<!-- -->
 
 3. Calculate and report the mean and median of the total number of steps taken per day
 
@@ -98,7 +111,20 @@ data1 %>%select(steps, date) %>% group_by(date) %>%summarise(total=sum(steps,na.
 ```
 
 ```
-## Error in eval(lhs, parent, parent): object 'data1' not found
+## # A tibble: 61 x 4
+##    date       total    mean median
+##    <date>     <int>   <dbl>  <dbl>
+##  1 2012-10-01     0 NaN         NA
+##  2 2012-10-02   126   0.438      0
+##  3 2012-10-03 11352  39.4        0
+##  4 2012-10-04 12116  42.1        0
+##  5 2012-10-05 13294  46.2        0
+##  6 2012-10-06 15420  53.5        0
+##  7 2012-10-07 11015  38.2        0
+##  8 2012-10-08     0 NaN         NA
+##  9 2012-10-09 12811  44.5        0
+## 10 2012-10-10  9900  34.4        0
+## # ... with 51 more rows
 ```
 
 ## What is the average daily activity pattern?
@@ -110,19 +136,11 @@ In the next section we will look at the intervals and the daily activity pattern
 
 ```r
 IntStep<-data1 %>% select(steps,interval)%>%group_by(interval) %>%summarise(mean=mean(steps,na.rm=TRUE))
-```
 
-```
-## Error in eval(lhs, parent, parent): object 'data1' not found
-```
-
-```r
 ggplot(IntStep,aes(x = interval, y = mean)) + geom_line()+ xlab("Interval")+ ylab("Mean number of steps ")
 ```
 
-```
-## Error in ggplot(IntStep, aes(x = interval, y = mean)): object 'IntStep' not found
-```
+![](PA1_template_files/figure-html/time series-1.png)<!-- -->
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
@@ -133,7 +151,10 @@ data1 %>% select(steps,interval)%>%group_by(interval) %>%summarise(mean=mean(ste
 ```
 
 ```
-## Error in eval(lhs, parent, parent): object 'data1' not found
+## # A tibble: 1 x 2
+##   interval  mean
+##      <int> <dbl>
+## 1      835  206.
 ```
 
 The maximum average steps taken interval is 835 to 840 minutes interval, which taken the 206 steps in that interval.
@@ -150,7 +171,7 @@ sum(is.na(data1))
 ```
 
 ```
-## Error in eval(expr, envir, enclos): object 'data1' not found
+## [1] 2304
 ```
 
 2. Devise a strategy for filling in all of the missing values in the dataset
@@ -160,20 +181,9 @@ the stratergy I have chosen is to input missing values with the mean from that d
 
 ```r
 datafill<-data1
-```
-
-```
-## Error in eval(expr, envir, enclos): object 'data1' not found
-```
-
-```r
 for(i in 1:ncol(datafill)){
   datafill[is.na(datafill[,i]), i] <- mean(datafill[,i], na.rm = TRUE)
 }
-```
-
-```
-## Error in ncol(datafill): object 'datafill' not found
 ```
 
 
@@ -186,7 +196,13 @@ head(datafill)
 ```
 
 ```
-## Error in head(datafill): object 'datafill' not found
+##     steps       date interval
+## 1 37.3826 2012-10-01        0
+## 2 37.3826 2012-10-01        5
+## 3 37.3826 2012-10-01       10
+## 4 37.3826 2012-10-01       15
+## 5 37.3826 2012-10-01       20
+## 6 37.3826 2012-10-01       25
 ```
 
 4.Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
@@ -194,19 +210,10 @@ head(datafill)
 
 ```r
 datafill1<-datafill %>%select(steps, date) %>% group_by(date) %>%summarise(total=sum(steps,na.rm=TRUE))
-```
-
-```
-## Error in eval(lhs, parent, parent): object 'datafill' not found
-```
-
-```r
 hist(datafill1$total,10, col="blue",main="total number of steps taken each day", xlab="Total steps")
 ```
 
-```
-## Error in hist(datafill1$total, 10, col = "blue", main = "total number of steps taken each day", : object 'datafill1' not found
-```
+![](PA1_template_files/figure-html/hist total steps new dataset-1.png)<!-- -->
 
 
 ```r
@@ -214,7 +221,20 @@ datafill %>%select(steps, date) %>% group_by(date) %>%summarise(total=sum(steps,
 ```
 
 ```
-## Error in eval(lhs, parent, parent): object 'datafill' not found
+## # A tibble: 61 x 4
+##    date        total   mean median
+##    <date>      <dbl>  <dbl>  <dbl>
+##  1 2012-10-01 10766. 37.4     37.4
+##  2 2012-10-02   126   0.438    0  
+##  3 2012-10-03 11352  39.4      0  
+##  4 2012-10-04 12116  42.1      0  
+##  5 2012-10-05 13294  46.2      0  
+##  6 2012-10-06 15420  53.5      0  
+##  7 2012-10-07 11015  38.2      0  
+##  8 2012-10-08 10766. 37.4     37.4
+##  9 2012-10-09 12811  44.5      0  
+## 10 2012-10-10  9900  34.4      0  
+## # ... with 51 more rows
 ```
 
 These new values differ from the ones in section 1, because we now have more data that is all skewed towards the same point.
@@ -228,26 +248,19 @@ In this section we will look at how weekend and weekday activity differs
 
 ```r
 datafill$date <- as.Date(datafill$date)
-```
-
-```
-## Error in as.Date(datafill$date): object 'datafill' not found
-```
-
-```r
 datafill$day<-ifelse(isWeekday(datafill$date, wday=1:5), "Weekdays", "Weekend")
-```
 
-```
-## Error in as.POSIXlt(x, tz = "GMT"): object 'datafill' not found
-```
-
-```r
 head(datafill)
 ```
 
 ```
-## Error in head(datafill): object 'datafill' not found
+##     steps       date interval      day
+## 1 37.3826 2012-10-01        0 Weekdays
+## 2 37.3826 2012-10-01        5 Weekdays
+## 3 37.3826 2012-10-01       10 Weekdays
+## 4 37.3826 2012-10-01       15 Weekdays
+## 5 37.3826 2012-10-01       20 Weekdays
+## 6 37.3826 2012-10-01       25 Weekdays
 ```
 
 2.Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days 
@@ -255,19 +268,11 @@ head(datafill)
 
 ```r
 weekplot<-datafill %>% select(steps,interval,day)%>%group_by(day, interval) %>%summarise(mean=mean(steps,na.rm=TRUE))
-```
 
-```
-## Error in eval(lhs, parent, parent): object 'datafill' not found
-```
-
-```r
 ggplot(weekplot,aes(x = interval, y = mean,colour=day)) + geom_line(aes(colour=day))+ xlab("Interval")+ ylab("Number of steps ")+facet_wrap(~day)+theme(strip.background = element_rect(fill="orange"))
 ```
 
-```
-## Error in ggplot(weekplot, aes(x = interval, y = mean, colour = day)): object 'weekplot' not found
-```
+![](PA1_template_files/figure-html/time series for weekdays and weekend-1.png)<!-- -->
 
 
 
