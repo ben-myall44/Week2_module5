@@ -1,0 +1,158 @@
+---
+title: "PA1_template.rmd"
+author: "Ben Myall"
+date: "24/04/2020"
+output: html_document
+---
+
+#R Markdown project by Ben
+
+##Introduction
+
+It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a Fitbit, Nike Fuelband, or Jawbone Up. These type of devices are part of the “quantified self” movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. But these data remain under-utilized both because the raw data are hard to obtain and there is a lack of statistical methods and software for processing and interpreting the data.
+
+This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
+
+The data for this assignment can be downloaded from the course web site:
+
+Dataset: Activity monitoring data [52K]
+The variables included in this dataset are:
+
+steps: Number of steps taking in a 5-minute interval (missing values are coded as \color{red}{\verb|NA|}NA)
+date: The date on which the measurement was taken in YYYY-MM-DD format
+interval: Identifier for the 5-minute interval in which measurement was taken
+The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset.
+
+The first bit of analysis I will perform it to look at the relationship between number of steps taken and the days in our study
+
+```{r load packages & read data, echo=TRUE}
+
+library(dplyr)
+library(ggplot2)
+library(timeDate)
+
+
+data1<-read.csv(file="activity.csv",head=TRUE,sep=",")
+data1$date<-as.Date(data1$date,format="%Y-%m-%d")
+head(data1)
+
+```
+
+1. Calculate the total number of steps taken per day
+
+```{r total steps, echo=TRUE}
+DailyStep<-data1 %>% group_by(date) %>%summarise(total=sum(steps,na.rm=TRUE))
+DailyStep
+```
+
+2. Make a histogram of the total number of steps taken each day
+```{r hist total steps, echo=TRUE}
+hist(DailyStep$total,col="blue",main = "Total steps taken each day",xlab="Steps")
+```
+
+3. Calculate and report the mean and median of the total number of steps taken per day
+```{r mean median total steps, echo=TRUE}
+data1 %>%select(steps, date) %>% group_by(date) %>%summarise(total=sum(steps,na.rm=TRUE),mean=mean(steps,na.rm=TRUE),median=median(steps,na.rm=TRUE))
+```
+
+## What is the average daily activity pattern?
+
+In the next section we will look at the intervals and the daily activity pattern
+
+1. Make a time series plot of the 5-minute interval and the average number of steps taken, averaged across all days
+
+```{r time series, echo=TRUE}
+IntStep<-data1 %>% select(steps,interval)%>%group_by(interval) %>%summarise(mean=mean(steps,na.rm=TRUE))
+
+ggplot(IntStep,aes(x = interval, y = mean)) + geom_line()+ xlab("Interval")+ ylab("Mean number of steps ")
+```
+
+2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
+
+```{r maximum average steps, echo=TRUE}
+data1 %>% select(steps,interval)%>%group_by(interval) %>%summarise(mean=mean(steps,na.rm=TRUE))%>%arrange(desc(mean))%>%head(1)
+```
+
+The maximum average steps taken interval is 835 to 840 minutes interval, which taken the 206 steps in that interval.
+
+## Imputing missing values
+
+This section will deal with missing values
+
+1.count missing values
+
+```{r count missing values, echo=TRUE}
+sum(is.na(data1))
+```
+
+2. Devise a strategy for filling in all of the missing values in the dataset
+
+the stratergy I have chosen is to input missing values with the mean from that day
+
+```{r filling missing values, echo=TRUE}
+datafill<-data1
+for(i in 1:ncol(datafill)){
+  datafill[is.na(datafill[,i]), i] <- mean(datafill[,i], na.rm = TRUE)
+}
+```
+
+
+3.Update the dataset
+
+
+```{r new dataset, echo=TRUE}
+head(datafill)
+```
+
+4.Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
+
+```{r hist total steps new dataset, echo=TRUE}
+datafill1<-datafill %>%select(steps, date) %>% group_by(date) %>%summarise(total=sum(steps,na.rm=TRUE))
+hist(datafill1$total,10, col="blue",main="total number of steps taken each day", xlab="Total steps")
+```
+
+```{r mean median total steps new dataset, echo=TRUE}
+datafill %>%select(steps, date) %>% group_by(date) %>%summarise(total=sum(steps,na.rm=TRUE),mean=mean(steps,na.rm=TRUE),median=median(steps,na.rm=TRUE))
+```
+
+These new values differ from the ones in section 1, because we now have more data that is all skewed towards the same point.
+
+
+## Are there differences in activity patterns between weekdays and weekends?
+In this section we will look at how weekend and weekday activity differs
+
+1.Create a new variable in the dataset
+
+```{r weekdays and weekend from date, echo=TRUE}
+datafill$date <- as.Date(datafill$date)
+datafill$day<-ifelse(isWeekday(datafill$date, wday=1:5), "Weekdays", "Weekend")
+
+head(datafill)
+```
+
+2.Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days 
+
+```{r time series for weekdays and weekend, echo=TRUE}
+weekplot<-datafill %>% select(steps,interval,day)%>%group_by(day, interval) %>%summarise(mean=mean(steps,na.rm=TRUE))
+
+ggplot(weekplot,aes(x = interval, y = mean,colour=day)) + geom_line(aes(colour=day))+ xlab("Interval")+ ylab("Number of steps ")+facet_wrap(~day)+theme(strip.background = element_rect(fill="orange"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
